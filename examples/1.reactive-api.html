@@ -1,0 +1,24 @@
+<!--
+ * @Author: Pan Jingyi
+ * @Date: 2022-10-11 22:19:33
+ * @LastEditTime: 2022-10-11 22:48:58
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
+
+  <script>
+    let { reactive, shallowReactive, readonly, shallowReadonly } = VueReactivity
+    let state = readonly({ name: 'zf', age: {n: 12}})
+    state.age.n = 100
+    console.log(state)
+  </script>
+</body>
+</html>

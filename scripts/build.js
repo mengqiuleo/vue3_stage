@@ -1,14 +1,15 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-11 20:36:13
- * @LastEditTime: 2022-10-11 20:44:32
+ * @LastEditTime: 2022-10-11 22:44:01
  */
 //把package 目录下的所有包都进行打包
 
 const fs = require('fs');
 const execa = require('execa')
+// import { execa } from 'execa';
 
-const targets = fs.readdirSync('package').filter(f => {
+const targets = fs.readdirSync('packages').filter(f => {
   if(!fs.statSync(`packages/${f}`).isDirectory()){
     return false;
   }
