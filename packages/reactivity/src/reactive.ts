@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-11 21:20:53
- * @LastEditTime: 2022-10-12 10:07:38
+ * @LastEditTime: 2022-10-13 18:09:31
  */
 
 import { isObject } from '@vue/shared/src'
@@ -32,6 +32,8 @@ export function shallowReadonly(target){
 
 //是不是仅读，是不是深度， 柯里化 new Proxy() 最核心的需要拦截 数据的读取和数据的修改
 
+//我们需要一个映射表判断某个对象是否被代理了
+//映射表：分为仅读代理和深度代理
 const reactiveMap = new WeakMap()
 const readonlyMap = new WeakMap()
 
@@ -41,9 +43,9 @@ export function createReactiveObject(target, isReadonly, baseHandlers){
     return target;
   }
 
-  // 如果某个对象已经被代理过了 就不要再次代理了
+  // 如果某个对象已经被代理过了 就不要再次代理了: 所以我们需要一个映射表判断某个对象是否被代理了
   // 可能一个对象 被深度代理了 又是仅读代理
-  const proxyMap = isReadonly? readonlyMap : reactiveMap; 
+  const proxyMap = isReadonly? readonlyMap : reactiveMap; //判断isReadonly是否有值，来区分放到哪个映射表
 
   const existProxy = proxyMap.get(target)
   if(existProxy){

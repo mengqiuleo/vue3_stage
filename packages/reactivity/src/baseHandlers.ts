@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-11 21:54:42
- * @LastEditTime: 2022-10-13 09:25:45
+ * @LastEditTime: 2022-10-13 20:55:45
  */
 // 是不是仅读的 仅读的属性set时会报异常
 // 是不是深度的
@@ -12,7 +12,7 @@ import { TrackOpTypes, TriggerOrTypes } from './operators';
 import { reactive, readonly } from "./reactive";
 
 function createGetter(isReadonly = false, shallow = false){ //拦截获取功能
-  return function get(target, key, receiver){
+  return function get(target, key, receiver){ //receiver是代理对象本身，一般用不到
     
     const res = Reflect.get(target, key, receiver)
 
@@ -22,7 +22,7 @@ function createGetter(isReadonly = false, shallow = false){ //拦截获取功能
     
       //每个属性都会去走一遍这个函数
       console.log('执行effect时会取值，收集effect')
-      track(target, TrackOpTypes.GET, key) //调用get方法时，追踪target对象的key属性
+      track(target, TrackOpTypes.GET, key) //调用get方法时，追踪target对象的key属性，追踪该属性就是进行依赖收集
     }
 
     if(shallow){
@@ -54,7 +54,7 @@ function createSetter(shallow = false){ //拦截设置功能
 
     if(!hadKey){
       //新增
-      trigger(target, TriggerOrTypes.ADD, key, value)
+      trigger(target, TriggerOrTypes.ADD, key, value)//在trigger中就会执行该属性的effect
     }else if(hasChanged(oldValue,value)){//判断老值和新值是否一致
       //修改
       trigger(target, TriggerOrTypes.SET, key, value, oldValue)
