@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-11 21:54:42
- * @LastEditTime: 2022-10-13 20:55:45
+ * @LastEditTime: 2023-01-10 20:46:02
  */
 // 是不是仅读的 仅读的属性set时会报异常
 // 是不是深度的
@@ -22,7 +22,8 @@ function createGetter(isReadonly = false, shallow = false){ //拦截获取功能
     
       //每个属性都会去走一遍这个函数
       console.log('执行effect时会取值，收集effect')
-      track(target, TrackOpTypes.GET, key) //调用get方法时，追踪target对象的key属性，追踪该属性就是进行依赖收集
+      track(target, TrackOpTypes.GET, key) 
+      //* 重要：调用get方法时，追踪target对象的key属性，追踪该属性就是进行依赖收集（相当于收集vue2中的watcher）
     }
 
     if(shallow){
@@ -31,7 +32,7 @@ function createGetter(isReadonly = false, shallow = false){ //拦截获取功能
     //如果不是浅读并且当前属性值是对象
     if(isObject(res)){
       //递归：保证属性值里面的对象仍然是响应式的
-      // vue2是一上来就递归，vue3是取值时才会代理（懒代理），如果你不用这个值就不会代理
+      //* vue2是一上来就递归，vue3是取值时才会代理（懒代理），如果你不用这个值就不会代理
       return isReadonly ? readonly(res) : reactive(res)
     }
 
@@ -48,12 +49,15 @@ function createSetter(shallow = false){ //拦截设置功能
     // 这里就对数组和对象进行了区分
     //我们也不需要像vue2那样去重写数组方法：因为push方法也是修改数组索引
     let hadKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target,key)
+    // isIntegerKey判断是否是数字，用来判断是否是索引(判断数组)
+    // 然后判断索引和长度：就是判断数组的这一项是新增还是修改，：后面是判断出了当前是属性，不是数组的某一项，
+
     // hadKey 此时就判断出来了该key是新增的还是修改
 
-    const result = Reflect.set(target, key, value, receiver)
+    const result = Reflect.set(target, key, value, receiver)//设置值
 
     if(!hadKey){
-      //新增
+      //新增：触发更新，让对应的effect执行
       trigger(target, TriggerOrTypes.ADD, key, value)//在trigger中就会执行该属性的effect
     }else if(hasChanged(oldValue,value)){//判断老值和新值是否一致
       //修改

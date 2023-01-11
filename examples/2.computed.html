@@ -1,0 +1,33 @@
+<!--
+ * @Author: Pan Jingyi
+ * @Date: 2023-01-11 20:12:53
+ * @LastEditTime: 2023-01-11 20:16:42
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
+
+  <div id="app"></div>
+  <script>
+    let { effect, reactive, ref, shallowRef, toRef, toRefs, computed } = VueReactivity;
+
+    const age = ref(18)
+    const myAge = computed(() => {
+      return age.value + 10;
+    })
+
+    myAge.value
+    myAge.value //缓存
+
+    age.value = 100; //更新age，myAge不会立即重新计算
+    myAge.value; // 再次取值时才会重新计算
+  </script>
+</body>
+</html>

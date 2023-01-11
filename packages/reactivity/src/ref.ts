@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-13 10:16:50
- * @LastEditTime: 2022-10-13 16:40:54
+ * @LastEditTime: 2023-01-10 23:07:17
  */
 
 import { hasChanged, isArray, isObject } from "@vue/shared";
@@ -21,6 +21,7 @@ export function shallowRef(value){
   return createRef(value,true)
 }
 
+// 如果是对象，使用reactive包裹(主要用来包裹对象中包含对象的情况)
 const convert = (val) => isObject(val) ? reactive(val) : val
 class RefImpl { //ref返回的是一个RefImpl类的实例
   public _value; //表示声明了一个_value属性，但是没有赋值

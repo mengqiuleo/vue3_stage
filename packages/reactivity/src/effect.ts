@@ -4,12 +4,12 @@ import { TriggerOrTypes } from "./operators";
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-12 10:30:07
- * @LastEditTime: 2022-10-13 16:21:44
+ * @LastEditTime: 2023-01-10 21:01:53
  */
-export function effect(fn, options:any = {}){
+export function effect(fn, options:any = {}){ //effect函数还可以传参，比如告诉是同步或异步执行
   // 我需要让这个effect变成响应的effect，可以做到effect里面的数据变化：重新执行
 
-  const effect = createReactiveEffect(fn, options);
+  const effect = createReactiveEffect(fn, options); //创建出的effect是一个响应式的effect
 
   if(!options.lazy){ //lazy表示这个effect是懒执行，默认的effect会先执行一次
     effect();
@@ -18,7 +18,16 @@ export function effect(fn, options:any = {}){
   return effect;
 }
 
-let uid  = 0;
+/* effect嵌套
+effect(() => {
+  state.name //effect1
+  effect(() => {
+    state.age //effect2
+  })
+  state.address //effect1
+})
+*/
+let uid  = 0; //区分不同的effect
 let activeEffect;//一个变量：存储当前属性的effect
 const effectStack = []; //栈：effect函数中可能会嵌套effect，那么就需要栈来存储当前属性的effect（区分）
 function createReactiveEffect(fn, options){ //fn就是用户传入的函数
@@ -31,7 +40,7 @@ function createReactiveEffect(fn, options){ //fn就是用户传入的函数
         //让effect上来先执行一次,执行的是我们传入的那个函数: 执行就会去我们设置的变量中取值 
         return fn();
       }finally{
-        effectStack.pop();
+        effectStack.pop(); //finally是说：当前effect执行完毕以后，将它从栈中抛出
         activeEffect = effectStack[effectStack.length-1]
       }
     }
@@ -45,7 +54,7 @@ function createReactiveEffect(fn, options){ //fn就是用户传入的函数
   return effect;
 }
 
-// 让 某个对象中的属性 收集当前它对应的effect函数
+// 让 某个对象中的属性 收集当前它对应的effect函数（相当于让vue2中的dep收集它对应的watcher）
 const targetMap = new WeakMap()
 export function track(target, type, key){
   //这里可以拿到当前属性的effect： activeEffect
@@ -60,6 +69,8 @@ export function track(target, type, key){
    * dep就是从targetMap中根据key(这里的key就是target)，然后拿到对应的depsMap，然后根据key(key就是某个属性)，找到这个属性的set
    * 注意：每个属性对应一个set，然后这个set里面放了它的effect（因为set可以去重，所以是set）
    * 如果这个set里面没有当前的effect，那就加上
+   * 
+   * 总结：所有对象 -> 目标对象 -> 目标对象的属性 -> 目标对象的属性值对应的是一个set
    */
   let depsMap = targetMap.get(target)
   if(!depsMap){
@@ -69,13 +80,15 @@ export function track(target, type, key){
   if(!dep){
     depsMap.set(key, (dep = new Set))
   }
-  if(!dep.has(activeEffect)){
+  if(!dep.has(activeEffect)){ //让属性收集当前watcher
     dep.add(activeEffect)
   }
 
   console.log('targetMap: ',targetMap)
 }
 
+
+//数据更新：通知watcher
 export function trigger(target, type, key?, newValue?, oldValue?){
   // target：我们代理的整个对象  type: 0/1 -> 新增/修改   key: 新增或修改的属性
   // console.log('执行set或add',type, key, newValue, oldValue)
@@ -107,7 +120,7 @@ export function trigger(target, type, key?, newValue?, oldValue?){
   // 1.看修改的是不是数组的长度（因为改长度影响比较大）
   if(key === 'length' && isArray(target)){
     depsMap.forEach((dep, key) => {
-      // depsMap对于数组：前几项都是：valueOf, toString, join, length,下面几项是数组的每一项
+      // depsMap对于数组：前几项都是：valueOf, toString, join, length,后面的几项是数组的每一项
       // dep：是一个set，上面的depsMap的每一项的value：这个set的值是function reactiveEffect()
       // key：valueOf, toString, join 
       // console.log('depsMap: ',depsMap,'dep: ', dep,'key: ', key)
