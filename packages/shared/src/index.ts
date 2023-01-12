@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-11 20:14:03
- * @LastEditTime: 2022-10-12 16:24:53
+ * @LastEditTime: 2023-01-13 01:17:35
  */
 
 export const isObject = (value) => typeof value == 'object' && value !== null;
@@ -17,3 +17,6 @@ let hasOwnProperty = Object.prototype.hasOwnProperty
 export const hasOwn = (target, key) => hasOwnProperty.call(target,key) //判断对象身上有没有这个属性
 
 export const hasChanged = (oldValue,value) => oldValue !== value //判断老值和新值是否一致
+
+export * from './shapeFlag'
+
