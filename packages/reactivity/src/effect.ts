@@ -4,7 +4,7 @@ import { TriggerOrTypes } from "./operators";
 /*
  * @Author: Pan Jingyi
  * @Date: 2022-10-12 10:30:07
- * @LastEditTime: 2023-01-10 21:01:53
+ * @LastEditTime: 2023-01-13 21:51:12
  */
 export function effect(fn, options:any = {}){ //effect函数还可以传参，比如告诉是同步或异步执行
   // 我需要让这个effect变成响应的effect，可以做到effect里面的数据变化：重新执行
@@ -146,7 +146,14 @@ export function trigger(target, type, key?, newValue?, oldValue?){
   }
 
   //取出所有effect，遍历
-  effects.forEach((effect:any) => effect())
+  //* 注意，这里就是执行所有的effect，要和runtime-core挂钩，是在写runtime-core时新添加的代码
+  effects.forEach((effect:any) => {
+    if(effect.options.scheduler){
+      effect.options.scheduler(effect);
+    }else{
+      effect()
+    }
+  })
 }
 
 // { name:'zf', age=12 } => name => [effect effect]

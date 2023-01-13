@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    let { createApp, h, reactive } = VueRuntimeDOM;
+    let App = {
+      props: {
+      
+      },
+      setup(props, context){ //这里的props就是上面我们接收到的props
+        let state = reactive({name: 'zf'});
+        let fn = function(){
+          state.name = 'jw'
+        }
+
+        return () => {
+          return h('div', {onClick:fn},state.name);
+        }
+      }
+    }
+    let app = createApp(App, { name: 'zf', age:12 })
+    app.mount('#app')
+  </script>
+</body>
+</html>

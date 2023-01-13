@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-12 02:27:02
- * @LastEditTime: 2023-01-12 02:34:11
+ * @LastEditTime: 2023-01-13 22:33:18
  */
 export const nodeOps = {
   // createElement, 不同的平台创建元素方式不同
@@ -21,5 +21,6 @@ export const nodeOps = {
 
   //文本操作，创建文本，设置文本内容
   createText: text => document.createTextNode(text),
-  setText: (node, text) => node.nodeValue = text
+  setText: (node, text) => node.nodeValue = text,
+  nextSibling:(node) => node.nextSibling
 }
