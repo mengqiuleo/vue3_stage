@@ -1,12 +1,11 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-11 20:25:10
- * @LastEditTime: 2023-01-14 01:58:59
+ * @LastEditTime: 2023-01-16 04:17:37
  */
 
 import { effect } from "@vue/reactivity"
 import { ShapeFlags } from "@vue/shared"
-import { updateModuleBlock } from "typescript"
 import { createAppAPI } from "./apiCreateApp"
 import { createComponentInstance, setupComponent } from "./component"
 import { queueJob } from "./scheduler"

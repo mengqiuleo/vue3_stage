@@ -1,15 +1,19 @@
+/*
+ * @Author: Pan Jingyi
+ * @Date: 2023-01-13 01:07:42
+ * @LastEditTime: 2023-01-16 05:06:55
+ */
 import { isArray, isObject, isString, ShapeFlags } from "@vue/shared";
 
 /**
  * createVNode 创建虚拟节点
- * 自己感觉就是 h方法
- * h('div', {style:{color:red},'children})
  */
 
 export function isVnode(vnode){
   return vnode.__v_isVnode
 }
 
+// 创建虚拟节点可能是一个元素，或者是一个组件，比如一个组件：createApp(App, {})，原生dom中根本没有App这个元素，而我们这里的App是我们自定义的组件
 export const createVNode = (type, props, children = null) => {
   // 可以根据type来区分是组件还是普通元素
   // 用什么区分？ 组件是对象，元素是字符串

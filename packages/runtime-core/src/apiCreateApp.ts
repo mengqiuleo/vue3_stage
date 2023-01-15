@@ -1,8 +1,10 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-13 00:56:41
- * @LastEditTime: 2023-01-13 01:07:26
+ * @LastEditTime: 2023-01-16 04:55:35
  */
+import { createVNode } from "./vnode"
+
 export function createAppAPI(render){
   return function createApp(rootComponent, rootProps){ //告诉他那个组件那个属性来创建应用，它有两个参数：要挂载的组件，相关的属性
     const app = {

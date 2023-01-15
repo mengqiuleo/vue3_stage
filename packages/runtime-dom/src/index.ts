@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-11 20:25:26
- * @LastEditTime: 2023-01-13 04:27:07
+ * @LastEditTime: 2023-01-16 04:07:05
  */
 /**
  * runtime-dom 核心就是：提供domAPI方法
@@ -52,8 +52,8 @@ export * from '@vue/runtime-core'
  * runtime-core虽然也用了，但是我们是把这些api当做参数传给了core层面
  */
 
-//用户调用的是 runtime-dom  runtime-dom调用的是runtime-core
-//runtime-dom是为了解决平台差异
+// 用户调用的是 runtime-dom  runtime-dom调用的是runtime-core
+// runtime-dom是为了解决平台差异
 
 
 

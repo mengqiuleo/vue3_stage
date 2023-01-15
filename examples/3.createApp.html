@@ -12,21 +12,22 @@
   <script>
     let { createApp, h, reactive } = VueRuntimeDOM;
     let App = {
-      props: {
-      
-      },
-      setup(props, context){ //这里的props就是上面我们接收到的props
+      props: { //接收的参数
+        name: String,
+        age: Number
+      }, 
+      setup(props, context){ //这里的props就是上一行我们接收到的props
         let state = reactive({name: 'zf'});
         let fn = function(){
           state.name = 'jw'
         }
 
-        return () => {
+        return (proxy) => { //proxy参数其实指的就是当前App的实例，它会代理当前App实例身上的属性
           return h('div', {onClick:fn},state.name);
         }
       }
     }
-    let app = createApp(App, { name: 'zf', age:12 })
+    let app = createApp(App, { name: 'zf', age:12 }) //这里声明的参数会跑到上面的props中
     app.mount('#app')
   </script>
 </body>
