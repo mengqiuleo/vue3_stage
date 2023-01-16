@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-13 02:27:12
- * @LastEditTime: 2023-01-13 04:12:11
+ * @LastEditTime: 2023-01-17 00:56:15
  */
 // 组件中所有的方法
 
@@ -17,6 +17,7 @@ export function createComponentInstance(vnode){ //创建组件实例
     slots: {},
     ctx: {},
     setupState: {}, //如果setup返回一个对象，这个对象就是setupState
+    render: null,
     isMounted: false //表示这个组件是否被挂载过
   }
   instance.ctx = {_: instance}
@@ -72,7 +73,7 @@ function finishComponentSetup(instance){
   let Component = instance.type
   if(!instance.render){
     //对template模板进行编译 产生render函数
-    //instance.render = render; //需要将生成render函数放在石丽丽上
+    //instance.render = render; //需要将生成render函数放在实例身上
 
     if(!Component.render && Component.template){
       //编译 将结果 赋给 Component.render
@@ -90,3 +91,7 @@ function createSetupContext(instance){
     expose: () => {}
   }
 }
+
+//instance 表示的组件的状态，各种各样的状态，组件的相关信息
+// context 有4个参数 为了方便开发时使用的
+// proxy 主要为了取值方便 -> proxy.xxxx

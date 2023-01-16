@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-11 20:25:10
- * @LastEditTime: 2023-01-16 04:17:37
+ * @LastEditTime: 2023-01-17 02:12:45
  */
 
 import { effect } from "@vue/reactivity"
@@ -27,7 +27,7 @@ export function createRenderer(rendererOptions){
 
 
   const setupRenderEffect = (instance, container) => {
-    // 需要创建一个effect，在effect中调用render方法，这样render方法中拿到的数据会手机这个effect，属性更新时会重新执行
+    // 需要创建一个effect，在effect中调用render方法，这样render方法中拿到的数据会收集这个effect，属性更新时会重新执行
     instance.update = effect(function componentEffect(){
       if(!instance.isMounted){
         //初次渲染
@@ -47,7 +47,7 @@ export function createRenderer(rendererOptions){
         patch(prevTree, nextTree, container) //*对比新旧节点
       }
     }, {
-      scheduler: queueJob
+      scheduler: queueJob //这里是做缓存的，只更新一次
     })
   }
 
@@ -65,11 +65,24 @@ export function createRenderer(rendererOptions){
     setupRenderEffect(instance, container)
   }
 
-  const processCompent = (n1, n2, container) => {
+  const processComponent = (n1, n2, container) => {
     if(n1 === null){ //组件没有上一次的虚拟节点，证明是初渲染
       mountComponent(n2, container)
     } else {
       // 组件更新流程
+    }
+  }
+  const processText = (n1,n2,container) =>{
+    if(n1 == null){ // 创建文本插入到容器中
+        hostInsert(n2.el = hostCreateText(n2.children),container)
+    }
+  }
+  const processElement = (n1, n2, container, anchor) => {
+    if(n1 === null){
+      mountElement(n2, container, anchor);
+    } else {
+      //*元素更新  关于diff算法的
+      patchElement(n1,n2,container);
     }
   }
 
@@ -96,6 +109,8 @@ export function createRenderer(rendererOptions){
     }
     hostInsert(el, container, anchor)
   }
+
+  //* 分割线：上面的几个函数是放在一起共同实现一个功能：用于初始化渲染  凡是 mountXXX 就是初始化渲染. 下面的几个 patchXXX 函数放在一起，是diff算法的-----------------
 
   const patchProps = (oldProps, newProps,el) => {
     if(oldProps !== newProps){
@@ -272,20 +287,7 @@ export function createRenderer(rendererOptions){
     patchProps(oldProps, newProps,el)
     patchChildren(n1,n2,container)
   }
-  const processElement = (n1, n2, container, anchor) => {
-    if(n1 === null){
-      mountElement(n2, container, anchor);
-    } else {
-      //*元素更新  关于diff算法的
-      patchElement(n1,n2,container);
-    }
-  }
 
-  const processText = (n1,n2,container) =>{
-    if(n1 == null){ // 创建文本插入到容器中
-        hostInsert(n2.el = hostCreateText(n2.children),container)
-    }
-}
 
   const isSameVNodeType = (n1, n2) => {
     return n1.type === n2.type && n1.key === n2.key
@@ -313,11 +315,10 @@ export function createRenderer(rendererOptions){
         processText(n1,n2,container)
         break;
       default:
-        if(shapeFlag & ShapeFlags.ELEMENT){
-          //证明是元素
+        if(shapeFlag & ShapeFlags.ELEMENT){//证明是元素
           processElement(n1, n2, container, anchor) //处理元素
         } else if(shapeFlag & ShapeFlags.STATEFUL_COMPONENT){ //证明是组件
-          processCompent(n1, n2, container); //处理组件
+          processComponent(n1, n2, container); //处理组件
         }
     }
     
