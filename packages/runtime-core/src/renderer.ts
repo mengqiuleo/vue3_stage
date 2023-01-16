@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-11 20:25:10
- * @LastEditTime: 2023-01-17 02:12:45
+ * @LastEditTime: 2023-01-17 04:35:33
  */
 
 import { effect } from "@vue/reactivity"
@@ -209,6 +209,8 @@ export function createRenderer(rendererOptions){
         }
       }
 
+      let increasingNewIndexSequence = getSequence(newIndexToOldIndexMap)
+      let j = increasingNewIndexSequence.length - 1 //取出最后一个元素的索引
       //因为比较完毕后位置有差异，所以最后就是移动节点，并且将新增的节点插入
       for(let i = toBePatched-1; i>=0; i--){
         let currentIndex = i+s2; //找到h的索引
@@ -221,10 +223,61 @@ export function createRenderer(rendererOptions){
           //这种操作需要将所有节点全部的移动一遍，消耗性能，得优化，希望尽可能的少移动
           // 比如：一串数字，其中有好几个是连续的，并且新旧都是相同的，那么我们希望最好不要移动这些连续且相同的数字
           // 思路：最长递增子序列
-          hostInsert(child.el, el, anchor); //操作当前的d,以d下一个作为参照物插入
+
+          if(i != increasingNewIndexSequence[j]){
+            hostInsert(child.el, el, anchor); //操作当前的d,以d下一个作为参照物插入
+          } else {
+            j--; //跳过不需要移动的元素
+          }
         }
       }
     }
+  }
+
+  // 最长递增子序列：优化diff算法
+  function getSequence(arr){
+    const len = arr.length
+    const result = [0] //作为结果集，也就是我们最后求出来的结果序列，result存放所有索引，先把第一个数的索引放进去，作为参照物
+    const p = arr.slice(0); // 里面内容无所谓 和 原本的数组相同 用来存放索引
+    let start, end, middle;
+    for(let i=0; i<len; i++){
+      const arrI = arr[i];
+      if(arrI !== 0){ //这里不对0处理是针对diff算法，如果为0，表示这个为h,不属于连续的数，h是要单独插入的数
+        let resultLastIndex = result[result.length - 1] //拿到结果集的最后一项的索引
+        if(arr[resultLastIndex] < arrI){ //如果我们遍历到的当前数比结果集最后的数小，那么就直接把原数组的这个数插入
+          //* 在放入结果集之前，还要让它记住自己的前一个节点
+          p[i] = result[result.length - 1]
+          result.push(i)
+          continue
+        }
+  
+        //二分查找，找到比当前值大的哪一个
+        start = 0;
+        end = result.length - 1; // 二分查找 前后索引
+        while (start < end) { // 最终start = end 
+            middle = ((start + end) / 2) | 0;
+            // 拿result中间值合  最后一项比较
+            if (arr[result[middle]] < arrI) { // 找比arrI大的值 或者等于arrI
+                start = middle + 1;
+            } else {
+                end = middle;
+            }
+        }
+        if (arrI < arr[result[start]]) {
+          if(start > 0){ //才需要替换
+            p[i] = result[start - 1]; //要将它替换的前一个记住
+          }
+          result[start] = i; // 用更有潜力的来替换
+        }
+      }
+    } 
+    let i = result.length // 总长度
+    let last = result[i - 1] // 找到了最后一项
+    while (i-- > 0) { // 根据前驱节点一个个向前查找
+      result[i] = last // 最后一项肯定是正确的
+      last = p[last]
+    }
+    return result;
   }
 
   const unmountChildren = (children) => {
