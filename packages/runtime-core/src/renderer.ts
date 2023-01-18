@@ -1,7 +1,7 @@
 /*
  * @Author: Pan Jingyi
  * @Date: 2023-01-11 20:25:10
- * @LastEditTime: 2023-01-17 04:35:33
+ * @LastEditTime: 2023-01-18 15:41:24
  */
 
 import { effect } from "@vue/reactivity"
@@ -185,7 +185,7 @@ export function createRenderer(rendererOptions){
     } else {
       // 该乱序比对了，希望尽可能复用，做成一个映射表
       //Vue3用的新的作为映射表 ，Vue2是用老的
-      const s1 = i;
+      const s1 = i; //此时 i 指向的是前后比对都无法匹配的开始地方
       const s2 = i;
       const keyToNewIndexMap = new Map();
       for (let i = s2; i <= e2; i++) {
